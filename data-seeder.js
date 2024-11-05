@@ -6,38 +6,44 @@ const productData = [
   {
     name: 'Cool Water',
     price: 40,
+    description:'Cool Water Eau De Toilette for Men',
     suk: 'PF1',
-    image: '/images/pf-1.svg',
+    image: 'http://localhost:9000/perfumes/pf-1.svg',
   },
   {
     name: 'Lataffa',
+    description: 'Eau de Parfum',
     price: 80,
     suk: 'PF2',
-    image: '/images/sp-2.svg',
+    image: 'http://localhost:9000/perfumes/sp-2.svg',
   },
   {
     name: 'CK',
     price: 50,
+    description: 'Cool Water Eau De Toilette for Men',
     suk: 'PF3',
-    image: '/images/sp-3.svg',
+    image: 'http://localhost:9000/perfumes/sp-3.svg',
   },
   {
     name: 'Lataffa',
     price: 120,
+    description: 'Code Le Parfum',
     suk: 'PF4',
-    image: '/images/sp-4.svg',
+    image: 'http://localhost:9000/perfumes/sp-4.svg',
   },
   {
     name: 'Gucci Bloom',
     price: 100,
+    description: 'Bloom EDP Intense Eau de Parfum',
     suk: 'PF5',
-    image: '/images/sp-5.svg',
+    image: 'http://localhost:9000/perfumes/sp-5.svg',
   },
   {
     name: 'Chanel No.5',
     price: 150,
+    description: 'Eau de Parfum',
     suk: 'PF6',
-    image: '/images/sp-6.svg',
+    image: 'http://localhost:9000/perfumes/sp-6.svg',
   },
 ];
 
@@ -47,8 +53,9 @@ export async function seedProducts() {
       const product = new productModel({
         name: data.name,
         price: data.price,
+        description: data.description,
         suk: data.suk,
-        image: path.join('./public', data.image),
+        image: data.image,
       });
       await product.save();
       console.log(`Seeded: ${product.name}`);

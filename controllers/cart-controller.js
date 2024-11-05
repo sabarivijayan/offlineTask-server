@@ -1,5 +1,7 @@
 import userModel from "../models/user-model.js";
 
+
+//Adds the product to the cart according to its product id which is the itemId  and for the specific user
 const addToCart = async (req, res) => {
   try {
     let userData = await userModel.findOne({ _id: req.body.userId });
@@ -21,6 +23,8 @@ const addToCart = async (req, res) => {
   }
 };
 
+
+//Removes the product from the cart according to its product id which is the itemId and for the specific user
 const removeFromCart = async (req, res) => {
   try {
     let userData = await userModel.findById(req.body.userId);
@@ -36,6 +40,8 @@ const removeFromCart = async (req, res) => {
   }
 };
 
+
+//Gets the products in the cart according to the specific user
 const getCart = async (req, res) => {
     try {
        let userData = await userModel.findById(req.body.userId);
