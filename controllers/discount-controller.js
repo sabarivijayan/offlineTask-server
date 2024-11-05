@@ -12,8 +12,9 @@ export const applyDiscounts = async (cartData, user) => {
       }
 
       let productTotal = product.price*quantity;
-  
-      switch (product.sku) {
+      //Each comment mentions the type of discount that is being applied according to each product suk
+
+      switch (product.suk) {
         case 'PF1': // "Cool Water" - Buy-One-Get-One-Free
           productTotal -= Math.floor(item.quantity / 2) * product.price;
           break;
