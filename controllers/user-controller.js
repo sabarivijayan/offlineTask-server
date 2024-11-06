@@ -4,7 +4,7 @@ import validator from 'validator'
 import userModel from '../models/user-model.js'
 
 const createToken = (id) =>{
-    return jwt.sign({id}, process.env.JWT_SECRET);
+    return jwt.sign({id}, process.env.JWT_SECRET,{expiresIn: '1d'});
 }
 
 const loginUser = async (req,res) =>{

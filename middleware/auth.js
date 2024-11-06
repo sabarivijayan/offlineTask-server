@@ -1,3 +1,4 @@
+// auth.js
 import jwt from "jsonwebtoken";
 
 const authMiddleware = async (req, res, next) => {
@@ -14,7 +15,7 @@ const authMiddleware = async (req, res, next) => {
 
   try {
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-    req.body.userId = decodedToken.id;
+    req.userId = decodedToken.id;
     next();
   } catch (error) {
     return res.status(401).json({
