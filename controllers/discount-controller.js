@@ -1,13 +1,11 @@
-
 const calculatePercentageDiscount = (amount, percentage) => {
   return amount * (percentage / 100);
 };
 
 const applyDiscountCap = (originalPrice, totalDiscount, isBOGO) => {
-  
   if (isBOGO) return totalDiscount;
 
-  const maxDiscount = originalPrice ;
+  const maxDiscount = originalPrice;
   return Math.min(totalDiscount, maxDiscount);
 };
 
@@ -25,7 +23,7 @@ export const applyDiscounts = async (cartData, user) => {
   const uniqueProducts = new Set();
   const appliedDiscounts = [];
   const sukMap = new Map(); //to store suk references
-  
+
   // collect all SKUs
   for (const [itemId, details] of Object.entries(cartData)) {
     if (details?.suk) {
@@ -44,36 +42,35 @@ export const applyDiscounts = async (cartData, user) => {
     let isBOGO = false;
     // apply individual item discounts
     switch (suk) {
-      case 'PF1': // buy-one-get-one-free
+      case "PF1": // buy-one-get-one-free
         const freeItems = Math.floor(quantity / 2);
         itemDiscounts.push(freeItems * price);
         isBOGO = true;
         appliedDiscounts.push("Buy 1 Get 1 Free");
         break;
 
-      case 'PF2': 
+      case "PF2":
         if (quantity >= 3) {
           itemDiscounts.push((price - 75) * quantity);
           appliedDiscounts.push("Buy 3 or More & Pay Just $75 Each!");
         }
         break;
 
-        case "PF3": 
+      case "PF3":
         if (uniqueProducts.has("PF1")) {
           itemDiscounts.push(10);
-          appliedDiscounts.push("Special Combo: $10 Off on Calvin Klein"); 
+          appliedDiscounts.push("Special Combo: $10 Off on Calvin Klein");
         }
         break;
-      
 
-      case 'PF4': // seasonal Discount
-        if (isWithinDateRange('2024-12-01', '2024-12-31')) {
+      case "PF4": // seasonal Discount
+        if (isWithinDateRange("2024-12-01", "2024-12-31")) {
           itemDiscounts.push(calculatePercentageDiscount(originalTotal, 15));
           appliedDiscounts.push("Limited Time Only: 15% Off");
         }
         break;
 
-      case 'PF5': // tiered Discount
+      case "PF5": // tiered Discount
         if (quantity >= 4) {
           itemDiscounts.push(calculatePercentageDiscount(originalTotal, 20));
           appliedDiscounts.push("Buy 4+ Units for 20% Off");
@@ -83,8 +80,8 @@ export const applyDiscounts = async (cartData, user) => {
         }
         break;
 
-      case 'PF6': // bundle Discount
-        if (uniqueProducts.has('PF4')) {
+      case "PF6": // bundle Discount
+        if (uniqueProducts.has("PF4")) {
           itemDiscounts.push(calculatePercentageDiscount(originalTotal, 25));
           appliedDiscounts.push("Bundle Discount: 25% Off");
         }
@@ -97,7 +94,7 @@ export const applyDiscounts = async (cartData, user) => {
       itemDiscounts.reduce((sum, discount) => sum + discount, 0),
       isBOGO
     );
-    
+
     finalTotal += originalTotal - totalItemDiscount;
   }
 
@@ -125,7 +122,9 @@ export const applyDiscounts = async (cartData, user) => {
       // extra discount for loyal customers with large orders > 500
       if (finalTotal > 500) {
         finalTotal *= 0.98;
-        appliedDiscounts.push("Extra 2% Off for Loyal Customers with Orders Above $500");
+        appliedDiscounts.push(
+          "Extra 2% Off for Loyal Customers with Orders Above $500"
+        );
       }
     }
 
@@ -146,34 +145,39 @@ export const applyDiscounts = async (cartData, user) => {
     // VIP tier discount
     if (user.lifetimeSpend > 5000) {
       finalTotal *= 0.9;
-      appliedDiscounts.push("VIP Tier Discount: 10% Off for Lifetime Spend Over $5000");
+      appliedDiscounts.push(
+        "VIP Tier Discount: 10% Off for Lifetime Spend Over $5000"
+      );
     }
   }
-  console.log("disc",appliedDiscounts);
-  return Math.round(finalTotal * 100) / 100;
+  console.log("disc", appliedDiscounts);
+  return {
+    finalTotal: Math.round(finalTotal * 100) / 100,
+    appliedDiscounts: appliedDiscounts,
+  };
 };
-
 
 export const calculateDiscountedTotal = async (req, res) => {
   try {
     const user = await userModel.findById(req.userId).lean();
     if (!user) {
-      return res.status(404).json({ 
-        success: false, 
-        message: "User not found" 
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
       });
     }
 
     // get cart data and filter out items with quantity 0
-    const cartItems = Object.entries(user.cartData || {})
-      .filter(([_, quantity]) => quantity > 0);
+    const cartItems = Object.entries(user.cartData || {}).filter(
+      ([_, quantity]) => quantity > 0
+    );
 
     if (cartItems.length === 0) {
       return res.status(200).json({
         success: true,
         total: 0,
         discount: 0,
-        payable: 0
+        payable: 0,
       });
     }
 
@@ -194,21 +198,21 @@ export const calculateDiscountedTotal = async (req, res) => {
     }
 
     const totalWithDiscounts = await applyDiscounts(populatedCartData, user);
-    
-    
-    return res.status(200).json({
+
+    const discountAmount = originalTotal - totalWithDiscounts;
+
+    res.status(200).json({
       success: true,
       total: originalTotal,
-      discount: originalTotal - totalWithDiscounts,
-      payable: totalWithDiscounts,
-      discountNames: totalWithDiscounts.appliedDiscounts
+      discount: discountAmount,
+      payable: totalWithDiscounts.finalTotal,
+      discountNames: totalWithDiscounts.appliedDiscounts,
     });
-    
   } catch (error) {
     console.error("Error calculating discounted total:", error);
-    return res.status(500).json({ 
-      success: false, 
-      message: "Error calculating discounted total" 
+    return res.status(500).json({
+      success: false,
+      message: "Error calculating discounted total",
     });
   }
 };

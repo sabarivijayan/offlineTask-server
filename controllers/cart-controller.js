@@ -91,14 +91,14 @@ const calculateDiscountedTotal = async (req, res) => {
 
     const totalWithDiscounts = await applyDiscounts(populatedCartData, user);
     
-    const discountAmount = originalTotal - totalWithDiscounts;
+    const discountAmount = originalTotal - totalWithDiscounts.finalTotal;
     
     res.status(200).json({
       success: true,
       total: originalTotal,
       discount: discountAmount,
-      payable: totalWithDiscounts,
-      discountNames: totalWithDiscounts.discounts
+      payable: totalWithDiscounts.finalTotal,
+      discountNames: totalWithDiscounts.appliedDiscounts,
     });
   } catch (error) {
     console.error("Error in calculateDiscountedTotal:", error);
